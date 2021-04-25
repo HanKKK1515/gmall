@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hll.gmall.manager.mapper.PmsProductSaleAttrMapper">
+
+    <select id="spuSaleAttrListCheckBySku" resultMap="spuSaleAttrListCheckBySkuMap">
+        SELECT pa.id                AS pa_id,
+               pa.product_id        AS pa_product_id,
+               pa.sale_attr_id      AS pa_sale_attr_id,
+               pa.sale_attr_name,
+               pav.id               AS pav_id,
+               pav.product_id       AS pav_product_id,
+               pav.sale_attr_id     AS pav_sale_attr_id,
+               pav.sale_attr_value_name,
+               if(sav.sku_id, 1, 0) as isChecked
+        FROM pms_product_sale_attr pa
+                 INNER JOIN pms_product_sale_attr_value pav
+                            ON pa.product_id = pav.product_id
+                                AND pa.sale_attr_id = pav.sale_attr_id
+                                AND pa.product_id = #{spuId}
+                 LEFT JOIN pms_sku_sale_attr_value sav
+                           ON pa.sale_attr_id = sav.sale_attr_id
+                               AND pav.id = sav.sale_attr_value_id
+                               AND sav.sku_id = #{skuId}
+    </select>
+    <resultMap id="spuSaleAttrListCheckBySkuMap" type="com.hll.gmall.api.bean.PmsProductSaleAttr" autoMapping="true">
+        <result column="pa_id" property="id"/>
+        <result column="pa_product_id" property="productId"/>
+        <result column="pa_sale_attr_id" property="saleAttrId"/>
+        <collection property="spuSaleAttrValueList" ofType="com.hll.gmall.api.bean.PmsProductSaleAttrValue"
+                    autoMapping="true">
+            <result column="pav_id" property="id"/>
+            <result column="pav_product_id" property="productId"/>
+            <result column="pav_sale_attr_id" property="saleAttrId"/>
+        </collection>
+    </resultMap>
+
+</mapper>
